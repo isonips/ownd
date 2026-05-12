@@ -43,7 +43,7 @@ export default function RunPage() {
         style: "mapbox://styles/mapbox/dark-v11",
         center: [2.3522, 48.8566],
         zoom: 16,
-        pitch: 55,
+        pitch: 50,
         bearing: 0,
         attributionControl: false,
       });
@@ -59,14 +59,14 @@ export default function RunPage() {
           type: "line",
           source: "path",
           layout: { "line-cap": "round", "line-join": "round" },
-          paint: { "line-color": "#6DD0A9", "line-width": 18, "line-opacity": 0.35, "line-blur": 6 },
+          paint: { "line-color": "#76F4DF", "line-width": 14, "line-opacity": 0.2, "line-blur": 5 },
         });
         m.addLayer({
           id: "path",
           type: "line",
           source: "path",
           layout: { "line-cap": "round", "line-join": "round" },
-          paint: { "line-color": "#6DD0A9", "line-width": 6 },
+          paint: { "line-color": "#76F4DF", "line-width": 4 },
         });
       });
     })();
@@ -153,67 +153,72 @@ export default function RunPage() {
   return (
     <div className="relative h-full">
       <div ref={mapDiv} className="absolute inset-0" />
-      {/* gradient over map */}
       <div
         className="pointer-events-none absolute inset-0"
-        style={{ background: "linear-gradient(180deg, rgba(5,7,10,0.7) 0%, rgba(5,7,10,0) 25%, rgba(5,7,10,0) 55%, #05070a 100%)" }}
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(7,8,15,0.65) 0%, rgba(7,8,15,0) 22%, rgba(7,8,15,0) 50%, var(--bg) 100%)",
+        }}
       />
 
-      {/* Top status */}
-      <div className="relative z-10 flex items-center justify-between px-5 pt-6">
+      <header className="relative z-10 flex items-center justify-between px-5 pt-6">
         <div className="chip">
-          {running ? <span className="pulse-dot" /> : <span className="w-2 h-2 rounded-full bg-white/40" />}
-          {running ? "Recording" : "Ready"}
+          {running ? <span className="pulse-dot" /> : <span className="w-2 h-2 rounded-full" style={{ background: "var(--ink-3)" }} />}
+          <span>{running ? "Recording" : "Idle"}</span>
         </div>
         <div className="chip">GPS · live</div>
-      </div>
+      </header>
 
-      {/* Big stats panel */}
-      <div className="absolute left-0 right-0 bottom-0 z-10 px-4 pb-28">
-        <div className="card !p-5">
-          <div className="text-[11px] uppercase tracking-widest text-white/55 font-bold">Distance</div>
-          <div className="stat-num text-[64px] leading-none mt-1 glow-own" style={{ color: "#fff" }}>
+      <div className="absolute left-0 right-0 bottom-0 z-10 px-4 pb-24">
+        <div className="card-solid">
+          <div className="eyebrow">Distance</div>
+          <div className="num text-[56px] leading-none mt-1">
             {(distance / 1000).toFixed(2)}
-            <span className="text-2xl text-white/50 font-bold ml-2">km</span>
+            <span className="text-lg ml-2 font-medium" style={{ color: "var(--ink-3)" }}>km</span>
           </div>
-          <div className="grid grid-cols-2 gap-3 mt-4">
+          <div className="grid grid-cols-2 gap-3 mt-5">
             <div>
-              <div className="text-[11px] uppercase tracking-widest text-white/55 font-bold">Time</div>
-              <div className="stat-num text-3xl mt-1">
+              <div className="eyebrow">Time</div>
+              <div className="num text-[28px] mt-1">
                 {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, "0")}
               </div>
             </div>
             <div>
-              <div className="text-[11px] uppercase tracking-widest text-white/55 font-bold">Pace</div>
-              <div className="stat-num text-3xl mt-1">{paceStr}<span className="text-base text-white/50 ml-1">/km</span></div>
+              <div className="eyebrow">Pace</div>
+              <div className="num text-[28px] mt-1">
+                {paceStr}<span className="text-sm ml-1 font-medium" style={{ color: "var(--ink-3)" }}>/km</span>
+              </div>
             </div>
           </div>
         </div>
 
         <div className="mt-3">
           {!running ? (
-            <button className="btn w-full text-lg" onClick={start} disabled={busy}>
+            <button className="btn w-full" onClick={start} disabled={busy}>
               {busy ? "Uploading…" : "Start run"}
             </button>
           ) : (
-            <button className="btn btn-danger w-full text-lg" onClick={stop}>
-              Stop & claim
-            </button>
+            <button className="btn btn-danger w-full" onClick={stop}>Stop & claim</button>
           )}
         </div>
 
         {result && (
-          <div className="card mt-3 text-center">
-            <div className="text-xs uppercase tracking-widest text-white/55 font-bold">Run uploaded</div>
-            <div className="flex items-center justify-around mt-2">
+          <div className="card mt-3">
+            <div className="eyebrow">Run complete</div>
+            <div className="flex items-center justify-between mt-2">
               <div>
-                <div className="stat-num text-3xl" style={{ color: "#6DD0A9" }}>+{result.claimed}</div>
-                <div className="text-[10px] uppercase tracking-widest font-bold text-white/60">Claimed</div>
+                <div className="num text-2xl" style={{ color: "var(--mint)" }}>+{result.claimed}</div>
+                <div className="eyebrow mt-0.5">Claimed</div>
               </div>
-              <div className="w-px h-10 bg-white/10" />
+              <div className="divider w-px h-10 self-center" />
               <div>
-                <div className="stat-num text-3xl" style={{ color: "#F59E0B" }}>{result.stolen}</div>
-                <div className="text-[10px] uppercase tracking-widest font-bold text-white/60">Stolen</div>
+                <div className="num text-2xl" style={{ color: "var(--amber)" }}>{result.stolen}</div>
+                <div className="eyebrow mt-0.5">Stolen</div>
+              </div>
+              <div className="divider w-px h-10 self-center" />
+              <div>
+                <div className="num text-2xl">{(distance / 1000).toFixed(2)}</div>
+                <div className="eyebrow mt-0.5">km</div>
               </div>
             </div>
           </div>

@@ -3,15 +3,30 @@ import { useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
 const ITEMS = [
-  { type: "shield",  title: "Shield",  desc: "Block steals for 24h.",          price: "5 USDC", hours: 24, emoji: "🛡️", tone: "#6DD0A9" },
-  { type: "boost",   title: "Boost",   desc: "+10 score on your next run.",    price: "3 USDC", hours: 24, emoji: "⚡", tone: "#F59E0B" },
-  { type: "radar",   title: "Radar",   desc: "See rivals' streaks for 24h.",   price: "2 USDC", hours: 24, emoji: "📡", tone: "#7aa3ff" },
-  { type: "contest", title: "Contest", desc: "Instantly contest a street.",    price: "8 USDC", hours: 1,  emoji: "⚔️", tone: "#EF4444" },
+  { type: "shield",  title: "Shield",  desc: "Block steals for 24 hours.",     price: 5, hours: 24, accent: "var(--mint)" },
+  { type: "boost",   title: "Boost",   desc: "+10 score on your next run.",    price: 3, hours: 24, accent: "var(--cyan)" },
+  { type: "radar",   title: "Radar",   desc: "Reveal rivals' streaks 24h.",    price: 2, hours: 24, accent: "var(--violet)" },
+  { type: "contest", title: "Contest", desc: "Instantly contest a street.",    price: 8, hours: 1,  accent: "var(--pink)" },
 ];
+
+function Glyph({ name, color }: { name: string; color: string }) {
+  const p = { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: color, strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  switch (name) {
+    case "shield":
+      return <svg {...p}><path d="M12 3 4.5 6v6.5c0 4.5 3.2 7.6 7.5 8.5 4.3-0.9 7.5-4 7.5-8.5V6L12 3Z" /></svg>;
+    case "boost":
+      return <svg {...p}><path d="M13 3 5 14h6l-1 7 8-11h-6l1-7Z" /></svg>;
+    case "radar":
+      return <svg {...p}><circle cx="12" cy="12" r="9" /><path d="M12 12 18 6" /><circle cx="12" cy="12" r="3" /></svg>;
+    case "contest":
+      return <svg {...p}><path d="M5 19 14 10" /><path d="m14 5 5 5-2 2-5-5 2-2Z" /><path d="m9 14-4 5 5-4" /></svg>;
+  }
+  return null;
+}
 
 export default function ShopPage() {
   const [buying, setBuying] = useState<string | null>(null);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [msg, setMsg] = useState<{ text: string; tone: "ok" | "err" } | null>(null);
 
   async function buy(type: string, hours: number) {
     setBuying(type);
@@ -23,32 +38,43 @@ export default function ShopPage() {
       .from("power_ups")
       .insert({ user_id: data.user.id, type, expires_at: expires });
     setBuying(null);
-    setMsg(error ? error.message : `${type} acquired`);
-    setTimeout(() => setMsg(null), 2500);
+    setMsg(error
+      ? { text: error.message, tone: "err" }
+      : { text: `${type} acquired`, tone: "ok" });
+    setTimeout(() => setMsg(null), 2400);
   }
 
   return (
     <div className="px-5 pt-6">
-      <div className="text-[11px] uppercase tracking-widest text-white/55 font-bold">Shop</div>
-      <h1 className="text-3xl font-black tracking-tight">Power-ups</h1>
-      <p className="text-white/60 text-sm mt-1">Paid in USDC. Simulated for MVP.</p>
+      <div className="eyebrow">Shop</div>
+      <h1 className="h-display text-[28px] mt-1">Power-ups</h1>
+      <p className="text-[13px] mt-1" style={{ color: "var(--ink-3)" }}>
+        Settle in USDC. Simulated for MVP.
+      </p>
 
       <div className="grid grid-cols-2 gap-3 mt-5">
         {ITEMS.map((it) => (
-          <div key={it.type} className="card !p-4">
+          <div key={it.type} className="card !p-4 flex flex-col">
             <div
-              className="w-12 h-12 rounded-2xl grid place-items-center text-2xl"
-              style={{ background: `${it.tone}20`, boxShadow: `0 0 24px ${it.tone}33` }}
+              className="w-10 h-10 rounded-xl grid place-items-center"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid var(--hairline)",
+              }}
             >
-              <span>{it.emoji}</span>
+              <Glyph name={it.type} color={it.accent} />
             </div>
-            <div className="mt-3 font-black text-lg">{it.title}</div>
-            <div className="text-xs text-white/60 mt-0.5 leading-snug">{it.desc}</div>
-            <div className="mt-3 flex items-center justify-between">
-              <div className="font-bold" style={{ color: it.tone }}>{it.price}</div>
+            <div className="mt-3 font-semibold text-[15px]">{it.title}</div>
+            <div className="text-[12px] mt-0.5 leading-snug" style={{ color: "var(--ink-3)" }}>
+              {it.desc}
+            </div>
+            <div className="mt-3 flex items-center gap-2">
+              <span className="w-4 h-4 rounded-full token-coin" />
+              <span className="num text-sm">{it.price}</span>
+              <span className="eyebrow text-[10px]">USDC</span>
             </div>
             <button
-              className="btn w-full mt-3 !py-3 !text-sm"
+              className="btn w-full mt-3"
               onClick={() => buy(it.type, it.hours)}
               disabled={buying === it.type}
             >
@@ -57,7 +83,19 @@ export default function ShopPage() {
           </div>
         ))}
       </div>
-      {msg && <div className="toast bg-own text-black">{msg}</div>}
+
+      {msg && (
+        <div
+          className="toast"
+          style={{
+            background: msg.tone === "ok" ? "rgba(43,203,163,0.18)" : "rgba(229,72,77,0.18)",
+            color: msg.tone === "ok" ? "var(--mint)" : "#FFCFCF",
+            borderColor: msg.tone === "ok" ? "rgba(43,203,163,0.45)" : "rgba(229,72,77,0.5)",
+          }}
+        >
+          {msg.text}
+        </div>
+      )}
     </div>
   );
 }

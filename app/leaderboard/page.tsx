@@ -23,8 +23,8 @@ export default async function Leaderboard() {
   if (!user || !viewer?.is_premium) {
     return (
       <div className="px-5 pt-6">
-        <div className="text-[11px] uppercase tracking-widest text-white/55 font-bold">Leaderboard</div>
-        <h1 className="text-3xl font-black tracking-tight">Top owners</h1>
+        <div className="eyebrow">Leaderboard</div>
+        <h1 className="h-display text-[28px] mt-1">Top owners</h1>
         <Paywall message="Premium required to view the global leaderboard." />
       </div>
     );
@@ -54,31 +54,43 @@ export default async function Leaderboard() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 50);
 
-  const medal = (i: number) => i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : null;
-
   return (
     <div className="px-5 pt-6">
-      <div className="text-[11px] uppercase tracking-widest text-white/55 font-bold">Leaderboard</div>
-      <h1 className="text-3xl font-black tracking-tight">Top owners</h1>
+      <div className="eyebrow">Leaderboard</div>
+      <h1 className="h-display text-[28px] mt-1">Top owners</h1>
 
       <ol className="mt-5 space-y-2">
-        {ranked.map((r, i) => (
-          <li key={r.id} className="card !p-3 flex items-center gap-3">
-            <div className="w-9 h-9 grid place-items-center rounded-xl bg-white/5 font-black">
-              {medal(i) ?? <span className="text-white/70">{i + 1}</span>}
-            </div>
-            <Link href={`/profile/${r.username}`} className="flex-1">
-              <div className="font-bold">@{r.username}</div>
-              <div className="text-xs text-white/55">{r.points} pts</div>
-            </Link>
-            <div className="text-right">
-              <div className="stat-num text-xl" style={{ color: "#6DD0A9" }}>{r.count}</div>
-              <div className="text-[10px] uppercase tracking-widest text-white/55 font-bold">streets</div>
-            </div>
-          </li>
-        ))}
+        {ranked.map((r, i) => {
+          const top3 = i < 3;
+          return (
+            <li key={r.id} className="card !p-3 flex items-center gap-3">
+              <div
+                className="w-8 h-8 grid place-items-center rounded-lg num text-sm"
+                style={{
+                  background: top3 ? "rgba(118,244,223,0.10)" : "rgba(255,255,255,0.04)",
+                  color: top3 ? "var(--mint)" : "var(--ink-2)",
+                  border: "1px solid var(--hairline)",
+                }}
+              >
+                {i + 1}
+              </div>
+              <Link href={`/profile/${r.username}`} className="flex-1 min-w-0">
+                <div className="font-semibold text-[14px] truncate">@{r.username}</div>
+                <div className="text-[12px]" style={{ color: "var(--ink-3)" }}>
+                  {r.points} pts
+                </div>
+              </Link>
+              <div className="text-right">
+                <div className="num text-lg" style={{ color: "var(--mint)" }}>{r.count}</div>
+                <div className="eyebrow text-[10px]">streets</div>
+              </div>
+            </li>
+          );
+        })}
         {ranked.length === 0 && (
-          <div className="card text-white/60 text-center">No owners yet — go run.</div>
+          <div className="card text-center text-[14px]" style={{ color: "var(--ink-3)" }}>
+            No owners yet.
+          </div>
         )}
       </ol>
     </div>

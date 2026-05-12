@@ -18,11 +18,11 @@ export default function StolenWatcher() {
         .on(
           "postgres_changes",
           { event: "UPDATE", schema: "public", table: "territory" },
-          (payload) => {
-            const oldRow = payload.old as any;
-            const newRow = payload.new as any;
+          (payload: any) => {
+            const oldRow = payload.old;
+            const newRow = payload.new;
             if (oldRow.owner_id === me && newRow.owner_id && newRow.owner_id !== me) {
-              setMsg("STOLEN! Someone took one of your streets.");
+              setMsg("A street was stolen from you.");
               setTimeout(() => setMsg(null), 4000);
             }
           },
@@ -38,13 +38,17 @@ export default function StolenWatcher() {
   if (!msg) return null;
   return (
     <div
-      className="toast text-white flex items-center gap-2"
+      className="toast flex items-center gap-2"
       style={{
-        background: "linear-gradient(180deg,#FF6A6A,#D43F3F)",
-        boxShadow: "0 14px 40px rgba(239,68,68,0.5)",
+        background: "rgba(229,72,77,0.16)",
+        borderColor: "rgba(229,72,77,0.45)",
+        color: "#FFCFCF",
       }}
     >
-      <span>⚠️</span>
+      <span
+        className="w-1.5 h-1.5 rounded-full"
+        style={{ background: "#FF5757" }}
+      />
       <span>{msg}</span>
     </div>
   );

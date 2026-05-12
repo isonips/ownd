@@ -53,10 +53,10 @@ export default function TerritoryMap({ selfId, showHover = true, interactive = t
           source: "territory",
           layout: { "line-cap": "round", "line-join": "round" },
           paint: {
-            "line-width": 14,
+            "line-width": 9,
             "line-color": ["get", "color"],
-            "line-opacity": 0.35,
-            "line-blur": 6,
+            "line-opacity": 0.22,
+            "line-blur": 4,
           },
         });
         m.addLayer({
@@ -65,9 +65,9 @@ export default function TerritoryMap({ selfId, showHover = true, interactive = t
           source: "territory",
           layout: { "line-cap": "round", "line-join": "round" },
           paint: {
-            "line-width": 5,
+            "line-width": 3.5,
             "line-color": ["get", "color"],
-            "line-opacity": 0.95,
+            "line-opacity": 0.9,
           },
         });
 
@@ -133,12 +133,14 @@ export default function TerritoryMap({ selfId, showHover = true, interactive = t
     <div className="relative w-full h-full">
       <div ref={ref} className="absolute inset-0" />
       {hover && (
-        <div className="absolute top-3 left-3 right-3 card !p-3">
-          <div className="flex items-center justify-between">
-            <div className="font-bold">{hover.name ?? "Unnamed street"}</div>
-            <div className="chip">{hover.score}</div>
+        <div className="absolute top-20 left-4 right-4 card !p-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-[14px] font-semibold truncate">
+              {hover.name ?? "Unnamed street"}
+            </div>
+            <div className="chip num">{hover.score}</div>
           </div>
-          <div className="text-white/60 text-xs mt-1">
+          <div className="text-[12px] mt-1" style={{ color: "var(--ink-3)" }}>
             {hover.owner ? `Owned by @${hover.owner}` : "Unclaimed"}
           </div>
         </div>

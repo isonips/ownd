@@ -12,21 +12,34 @@ export default function Paywall({ message }: { message: string }) {
   }
   return (
     <div
-      className="card mt-4 text-center relative overflow-hidden"
+      className="card mt-4 relative overflow-hidden"
       style={{
         background:
-          "radial-gradient(120% 80% at 50% 0%, rgba(109,208,169,0.18), rgba(20,22,28,0.78) 60%)",
+          "radial-gradient(120% 90% at 0% 0%, rgba(76,201,240,0.10), transparent 55%), radial-gradient(120% 90% at 100% 100%, rgba(139,92,246,0.10), transparent 55%), var(--surface)",
       }}
     >
-      <div className="chip mx-auto" style={{ color: "#6DD0A9", borderColor: "rgba(109,208,169,0.35)" }}>
-        ★ Premium
+      <div className="chip" style={{ color: "var(--mint)", borderColor: "rgba(118,244,223,0.35)" }}>
+        Premium
       </div>
-      <div className="mt-3 text-2xl font-black tracking-tight">Unlock everything</div>
-      <p className="text-white/70 mt-1 text-sm">{message}</p>
-      <div className="mt-3 stat-num text-5xl glow-own" style={{ color: "#6DD0A9" }}>
-        5€<span className="text-base text-white/60 font-bold ml-1">/ month</span>
+      <div className="mt-3 h-display text-[22px]">Unlock the full game.</div>
+      <p className="mt-2 text-[13px]" style={{ color: "var(--ink-2)" }}>{message}</p>
+
+      <ul className="mt-4 space-y-2">
+        {["Full run history & streaks", "Global leaderboard", "Detailed analytics"].map((f) => (
+          <li key={f} className="flex items-center gap-2 text-[13px]">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mint)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m4 12 5 5L20 6" />
+            </svg>
+            <span>{f}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="flex items-baseline gap-1 mt-5">
+        <span className="num text-[34px]">5€</span>
+        <span className="text-[13px]" style={{ color: "var(--ink-3)" }}>/ month</span>
       </div>
-      <button onClick={go} disabled={busy} className="btn w-full mt-4">
+      <button onClick={go} disabled={busy} className="btn w-full mt-3">
         {busy ? "Loading…" : "Go Premium"}
       </button>
     </div>
