@@ -2,8 +2,9 @@
 import { useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
+export const dynamic = "force-dynamic";
+
 export default function LoginPage() {
-  const supabase = supabaseBrowser();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -11,6 +12,7 @@ export default function LoginPage() {
   async function magic(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
+    const supabase = supabaseBrowser();
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
@@ -19,6 +21,7 @@ export default function LoginPage() {
     if (!error) setSent(true);
   }
   async function google() {
+    const supabase = supabaseBrowser();
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/auth/callback` },
