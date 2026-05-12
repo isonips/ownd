@@ -8,9 +8,17 @@ export const dynamic = "force-dynamic";
 export default async function Leaderboard() {
   const user = await safeGetUser();
   const supabase = supabaseServer();
-  const { data: viewer } = user
-    ? await supabase.from("profiles").select("is_premium").eq("id", user.id).maybeSingle()
-    : { data: null };
+  let viewer: any = null;
+  if (user) {
+    try {
+      const r = await supabase
+        .from("profiles")
+        .select("is_premium")
+        .eq("id", user.id)
+        .maybeSingle();
+      viewer = r.data;
+    } catch {}
+  }
 
   if (!user || !viewer?.is_premium) {
     return (
@@ -22,10 +30,16 @@ export default async function Leaderboard() {
     );
   }
 
-  const { data: rows } = await supabase
-    .from("territory")
-    .select("owner_id, profiles!territory_owner_id_fkey(username, points)")
-    .not("owner_id", "is", null);
+  let rows: any[] | null = null;
+  try {
+    const r = await supabase
+      .from("territory")
+      .select("owner_id, profiles!territory_owner_id_fkey(username, points)")
+      .not("owner_id", "is", null);
+    rows = r.data;
+  } catch {
+    rows = null;
+  }
 
   const counts = new Map<string, { username: string; points: number; count: number }>();
   for (const r of (rows ?? []) as any[]) {

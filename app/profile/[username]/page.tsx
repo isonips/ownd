@@ -9,23 +9,38 @@ export default async function ProfilePage({ params }: { params: { username: stri
   const user = await safeGetUser();
   const supabase = supabaseServer();
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("username", params.username)
-    .maybeSingle();
+  let profile: any = null;
+  let viewer: any = null;
+  let territoryCount = 0;
+  try {
+    const r1 = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("username", params.username)
+      .maybeSingle();
+    profile = r1.data;
+    if (user) {
+      const r2 = await supabase
+        .from("profiles")
+        .select("is_premium")
+        .eq("id", user.id)
+        .maybeSingle();
+      viewer = r2.data;
+    }
+    if (profile) {
+      const r3 = await supabase
+        .from("territory")
+        .select("*", { count: "exact", head: true })
+        .eq("owner_id", profile.id);
+      territoryCount = r3.count ?? 0;
+    }
+  } catch {
+    // ignore — fall through to notFound if profile is null
+  }
   if (!profile) notFound();
 
   const isSelf = user?.id === profile.id;
-  const { data: viewer } = user
-    ? await supabase.from("profiles").select("is_premium").eq("id", user.id).maybeSingle()
-    : { data: null };
   const premiumOK = isSelf || viewer?.is_premium;
-
-  const { count: territoryCount } = await supabase
-    .from("territory")
-    .select("*", { count: "exact", head: true })
-    .eq("owner_id", profile.id);
 
   return (
     <div className="px-5 pt-6">
@@ -67,12 +82,18 @@ export default async function ProfilePage({ params }: { params: { username: stri
 
 async function PremiumStats({ userId }: { userId: string }) {
   const supabase = supabaseServer();
-  const { data: runs } = await supabase
-    .from("runs")
-    .select("id, distance_m, duration_s, created_at")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(20);
+  let runs: any[] | null = null;
+  try {
+    const r = await supabase
+      .from("runs")
+      .select("id, distance_m, duration_s, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    runs = r.data;
+  } catch {
+    runs = null;
+  }
 
   if (!runs || runs.length === 0)
     return <div className="text-white/60 mt-3">No runs yet.</div>;

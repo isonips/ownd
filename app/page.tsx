@@ -12,17 +12,21 @@ export default async function Landing() {
   let me: { username: string | null; points: number; is_premium: boolean } | null = null;
   let myTerritory = 0;
   if (user) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("username, points, is_premium")
-      .eq("id", user.id)
-      .maybeSingle();
-    me = data;
-    const { count } = await supabase
-      .from("territory")
-      .select("*", { count: "exact", head: true })
-      .eq("owner_id", user.id);
-    myTerritory = count ?? 0;
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("username, points, is_premium")
+        .eq("id", user.id)
+        .maybeSingle();
+      me = data;
+      const { count } = await supabase
+        .from("territory")
+        .select("*", { count: "exact", head: true })
+        .eq("owner_id", user.id);
+      myTerritory = count ?? 0;
+    } catch {
+      // ignore: render landing without profile stats
+    }
   }
 
   return (
