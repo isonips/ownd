@@ -7,7 +7,7 @@ export async function POST() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-09-30.acacia" });
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   const session = await stripe.checkout.sessions.create({

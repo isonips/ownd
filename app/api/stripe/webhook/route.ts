@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-09-30.acacia" });
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
   const sig = req.headers.get("stripe-signature");
   if (!sig) return NextResponse.json({ error: "no signature" }, { status: 400 });
   const raw = await req.text();
