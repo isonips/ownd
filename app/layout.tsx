@@ -6,7 +6,6 @@ import StolenWatcher from "@/components/StolenWatcher";
 export const metadata: Metadata = {
   title: "Ownd — Run it. Own it.",
   description: "Territory-based running tracker. Every street you run becomes yours.",
-  themeColor: "#05070a",
 };
 
 export const viewport: Viewport = {

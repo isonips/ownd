@@ -1,27 +1,26 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
-const PREMIUM_PATHS = [/^\/leaderboard(\/|$)/, /^\/profile\/[^/]+(\/|$)/];
-
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return res;
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  try {
+    const supabase = createServerClient(url, key, {
       cookies: {
         getAll: () => req.cookies.getAll(),
         setAll: (toSet: { name: string; value: string; options?: any }[]) =>
-          toSet.forEach(({ name, value, options }) => res.cookies.set(name, value, options)),
+          toSet.forEach(({ name, value, options }) =>
+            res.cookies.set(name, value, options),
+          ),
       },
-    },
-  );
-
-  // Refresh session
-  await supabase.auth.getUser();
-
-  // Note: pages themselves render Paywall for non-premium; middleware just keeps session fresh.
+    });
+    await supabase.auth.getUser();
+  } catch {
+    // ignore — keep request flowing even if Supabase is unreachable
+  }
   return res;
 }
 

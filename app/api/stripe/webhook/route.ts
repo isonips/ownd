@@ -6,14 +6,20 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+  const secret = process.env.STRIPE_SECRET_KEY;
+  const whSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!secret || !whSecret) {
+    return NextResponse.json({ error: "stripe not configured" }, { status: 503 });
+  }
+
+  const stripe = new Stripe(secret);
   const sig = req.headers.get("stripe-signature");
   if (!sig) return NextResponse.json({ error: "no signature" }, { status: 400 });
   const raw = await req.text();
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(raw, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+    event = stripe.webhooks.constructEvent(raw, sig, whSecret);
   } catch (err: any) {
     return NextResponse.json({ error: `bad signature: ${err.message}` }, { status: 400 });
   }
@@ -31,7 +37,10 @@ export async function POST(req: Request) {
     }
   } else if (event.type === "customer.subscription.deleted") {
     const s = event.data.object as Stripe.Subscription;
-    await admin.from("profiles").update({ is_premium: false }).eq("stripe_customer_id", s.customer as string);
+    await admin
+      .from("profiles")
+      .update({ is_premium: false })
+      .eq("stripe_customer_id", s.customer as string);
   }
 
   return NextResponse.json({ received: true });

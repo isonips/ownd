@@ -1,11 +1,10 @@
 import TerritoryMap from "@/components/TerritoryMap";
-import { supabaseServer } from "@/lib/supabase/server";
+import { safeGetUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function MapPage() {
-  const supabase = supabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await safeGetUser();
 
   // tiny legend cards
   return (

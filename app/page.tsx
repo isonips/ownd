@@ -1,12 +1,13 @@
 import Link from "next/link";
 import TerritoryMap from "@/components/TerritoryMap";
 import { supabaseServer } from "@/lib/supabase/server";
+import { safeGetUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function Landing() {
+  const user = await safeGetUser();
   const supabase = supabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
 
   let me: { username: string | null; points: number; is_premium: boolean } | null = null;
   let myTerritory = 0;

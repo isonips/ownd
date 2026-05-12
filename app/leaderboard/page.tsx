@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
+import { safeGetUser } from "@/lib/auth";
 import Paywall from "@/components/Paywall";
 
 export const dynamic = "force-dynamic";
 
 export default async function Leaderboard() {
+  const user = await safeGetUser();
   const supabase = supabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
   const { data: viewer } = user
     ? await supabase.from("profiles").select("is_premium").eq("id", user.id).maybeSingle()
     : { data: null };

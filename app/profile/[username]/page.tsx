@@ -1,12 +1,13 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import { safeGetUser } from "@/lib/auth";
 import Paywall from "@/components/Paywall";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProfilePage({ params }: { params: { username: string } }) {
+  const user = await safeGetUser();
   const supabase = supabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
 
   const { data: profile } = await supabase
     .from("profiles")
